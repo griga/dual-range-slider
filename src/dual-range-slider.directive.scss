@@ -1,0 +1,149 @@
+// Styling Cross-Browser Compatible Dual Range Inputs with Sass
+// Github:
+// Author: Yura Griga https://github.com/griga
+// Version 1.0.0
+// MIT License
+
+$drs-slider-background-color: transparent !default;
+
+$drs-track-color: hsl(127, 100%, 47%) !default;
+$drs-highlight-color: #002342 !default;
+$drs-thumb-color: #002342 !default;
+$drs-thumb-active-color: hsl(196, 100%, 47%) !default;
+
+$drs-thumb-radius: 50% !default;
+$drs-thumb-height: 30px !default;
+$drs-thumb-width: 30px !default;
+$drs-thumb-shadow: none !default;
+$drs-thumb-border: none !default;
+
+$drs-track-width: 100% !default;
+$drs-track-height: 3px !default;
+$drs-track-shadow: none !default;
+$drs-track-border: none !default;
+$drs-track-radius: 5px !default;
+
+$drs-z-base: 50 !default;
+
+$drs-label-height: 50px !default;
+
+.dual-range-slider {
+
+  position: relative;
+  background: $drs-slider-background-color;
+  height: $drs-thumb-height;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 200px;
+  &:hover {
+    cursor: pointer;
+  }
+  &--show-labels {
+    height: $drs-thumb-height + $drs-label-height;
+
+  }
+
+  &__label-row{
+    height: $drs-label-height;
+  }
+
+  &__left-label, &__right-label {
+    position: absolute;
+    top: 0;
+    line-height: $drs-label-height;
+    height: $drs-label-height;
+    margin: 0;
+    padding: 0;
+  }
+  &__left-label{
+    left: 0;
+  }
+  &__right-label{
+    right: 0;
+  }
+
+
+
+  &__input-row{
+    position: relative;
+    height: $drs-thumb-height;
+  }
+
+  &__input {
+    -webkit-appearance: none;
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: $drs-track-width;
+    height: $drs-thumb-height;
+    z-index: 10;
+    &:hover {
+      cursor: pointer;
+    }
+    -webkit-tap-highlight-color: transparent;
+
+    @mixin thumb() {
+      width: $drs-thumb-width;
+      height: $drs-thumb-height;
+      background: red;
+    }
+    &::-webkit-slider-thumb {
+      @include thumb;
+      -webkit-appearance: none;
+      //margin-top: ((-$drs-track-border-width * 2 + $drs-track-height) / 2) - ($drs-thumb-height / 2);
+    }
+    &::-moz-range-thumb {
+      @include thumb;
+    }
+    &::-ms-thumb {
+      @include thumb;
+    }
+  }
+
+
+  &__left-thumb, &__right-thumb {
+    width: $drs-thumb-width;
+    height: $drs-thumb-height;
+    border: $drs-thumb-border;
+    box-shadow: $drs-thumb-shadow;
+    border-radius: $drs-thumb-radius;
+    position: absolute;
+    background: $drs-thumb-color;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: $drs-z-base + 2;
+    transition: all .2s cubic-bezier(.11, .83, .15, .93);
+    &.drs_active, &:hover {
+      background: $drs-thumb-active-color;
+    }
+    &:hover {
+      transform: scale(1.1, 1.1);
+    }
+  }
+
+  &__track {
+    background: $drs-track-color;
+    height: $drs-track-height;
+    z-index: $drs-z-base;
+    border-radius: $drs-track-radius;
+    width: 96%;
+    left: 2%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  &__highlight {
+    background: $drs-highlight-color;
+    height: $drs-track-height;
+    z-index: $drs-z-base + 1;
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+
