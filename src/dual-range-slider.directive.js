@@ -1,14 +1,21 @@
 /**
  *
+ * - redraws on bounds changed
+ *
  * model should look like
  * {
  *  min: 10,
  *  max: 100
  * }
  *
+ * bounds should look like
+ * {
+ *   min: 0
+ *   max: 100,
+ *   step: 1
+ * }
  *
  *
- * @returns {{restrict: string, require: require}}
  */
 
 (function () {
@@ -22,10 +29,8 @@
       replace: true,
       restrict: 'E',
       scope: {
-        min: '=',
-        max: '=',
         model: '=',
-        step: '=',
+        bounds: '=',
         extended: '=',
         showLabels: '=',
         labelFilter: '@'
@@ -39,9 +44,9 @@
                   <div class="dual-range-slider__right-label">{{rightLabel}}</div>
                 </div>  
                 <div class="dual-range-slider__input-row">
-                  <input type="range" multiple ng-model="sliderValue" ng-mousedown="onStart($event)"
+                  <input type="range" ng-model="sliderValue" ng-mousedown="onStart($event)"
                    ng-mouseup="onEnd($event)" ng-change="onSliderChange()"
-                  min="{{min}}" max="{{max}}" step="{{step}}" class="dual-range-slider__input">
+                  min="{{bounds.min}}" max="{{bounds.max}}" step="{{bounds.step}}" class="dual-range-slider__input">
                     <div class="dual-range-slider__left-thumb" ng-class="{drs_active: leftActive}"></div>
                     <div class="dual-range-slider__right-thumb" ng-class="{drs_active: rightActive}"></div>
                     <div class="dual-range-slider__highlight"></div>
@@ -54,7 +59,8 @@
 
       link: (scope, element, attributes)=> {
 
-        validateModel(scope.model);
+        validateModel(scope.model, attributes);
+        validateBounds(scope.bounds, attributes);
 
         widgetsCounter++;
         scope.sliderValue = 0;
@@ -68,26 +74,37 @@
         const rightThumb = widget.querySelector('.dual-range-slider__right-thumb');
         const highlight = widget.querySelector('.dual-range-slider__highlight');
 
-        let boundMin = scope.min;
-        let boundMax = scope.max;
+        let boundMin = scope.bounds.min;
+        let boundMax = scope.bounds.max;
 
         let min = scope.model.min;
         let max = scope.model.max;
-
 
         angular.extend(scope.model, {
           min: boundMin <= min && min <= boundMax ? min : boundMin,
           max: boundMin <= max && max <= boundMax ? max : boundMax
         });
 
-
         scope.sliderValue = max;
 
-        scope.$applyAsync(()=>{
+        // watch for bounds changing and redraw if any
+        scope.$watch('bounds', (bounds, oldBounds)=> {
+          boundMin = bounds.min;
+          boundMax = bounds.max;
+          angular.extend(scope.model, {
+            min: boundMin,
+            max: boundMax
+          });
+          render()
+        }, true);
+
+        // initial render
+        scope.$applyAsync(render);
+
+        function render() {
           renderThumbs();
           setLabels()
-        });
-
+        }
 
         function renderThumbs() {
           let low = scope.model.min;
@@ -109,16 +126,33 @@
           highlight.style.width = (rOffs - lOffs) + 'px';
         }
 
-        function validateModel(model) {
-          if (!model || !model.min || !model.max) {
-            throw new Error(`Dual range slider error! Not valid modelis passed:     ${model}
-                
-                Example:  vm.hoursRange = {
-                              min: 4,
-                              max: 8
-                          }
-                          
-                <dual-range-slider model="vm.hoursRange" min="0" max="24" ></dual-range-slider>`)
+        function validateModel(model, attributes) {
+
+          if (!model || !angular.isNumber(model.min) || !angular.isNumber(model.min)) {
+            throw new Error(`Dual range slider error! Not valid model is passed
+                in: ${attributes.model}
+                got: 
+                     ${JSON.stringify(model)}
+                expected:
+                     {
+                       min: number,
+                       max: m
+                     }`)
+          }
+        }
+
+        function validateBounds(bounds, attributes) {
+          if (!bounds || !angular.isNumber(bounds.min) || !angular.isNumber(bounds.max) || !angular.isNumber(bounds.step)) {
+            throw new Error(`Dual range slider error! Not valid bounds passed: 
+                in: ${attributes.bounds}
+                got: 
+                     ${JSON.stringify(bounds)}
+                expected:
+                     {   
+                       min: number,
+                       max: number,
+                       step: number
+                     }`)
           }
         }
 
@@ -161,7 +195,6 @@
           let thumbWidth = leftThumb.offsetWidth;
           let width = widget.offsetWidth;
 
-
           let val = ((offs + ((offs / width - 1 / 2) * thumbWidth)) * (boundMax - boundMin) / widget.offsetWidth + boundMin);
           val = val < boundMin ? boundMin : val > boundMax ? boundMax : val;
           scope.sliderValue = Math.round(val);
@@ -173,12 +206,9 @@
           scope.leftActive = false;
           scope.rightActive = false;
         }
-
-
       }
-
     }
-  }
+  };
 
   angular.module('dualRangeSlider', []).directive('dualRangeSlider', dualRangeSlider)
 
