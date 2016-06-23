@@ -33,7 +33,7 @@
         bounds: '=',
         extended: '=',
         showLabels: '=',
-        labelFilter: '@'
+        labelPipe: '@'
 
       },
       template: `
@@ -157,12 +157,12 @@
         }
 
         function setLabels() {
-          if (!scope.labelFilter) {
+          if (!scope.labelPipe) {
             scope.leftLabel = scope.model.min;
             scope.rightLabel = scope.model.max
           } else {
-            scope.leftLabel = $filter(scope.labelFilter)(scope.model.min);
-            scope.rightLabel = $filter(scope.labelFilter)(scope.model.max)
+            scope.leftLabel = $filter(scope.labelPipe)(scope.model.min);
+            scope.rightLabel = $filter(scope.labelPipe)(scope.model.max)
           }
         }
 
