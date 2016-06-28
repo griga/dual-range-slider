@@ -91,11 +91,21 @@
         scope.$watch('bounds', (bounds, oldBounds)=> {
           boundMin = bounds.min;
           boundMax = bounds.max;
+          min = scope.model.min;
+          max = scope.model.max;
           angular.extend(scope.model, {
-            min: boundMin,
-            max: boundMax
+            min: boundMin <= min && min <= boundMax ? min : boundMin,
+            max: boundMin <= max && max <= boundMax ? max : boundMax
           });
+          setTimeout(render, 50)
           render()
+        }, true);
+
+        scope.$watch('model', (model, oldModel)=> {
+          if(model.min != oldModel.min || model.max != oldModel.max){
+            render()
+
+          }
         }, true);
 
         // initial render
@@ -186,8 +196,6 @@
           }
 
           scope.rightActive = !scope.leftActive;
-          renderThumbs();
-          setLabels();
         };
 
         scope.onStart = (e)=> {
