@@ -33,6 +33,7 @@
         bounds: '=',
         extended: '=',
         showLabels: '=',
+        hideHandleMin: '=',
         labelPipe: '@'
 
       },
@@ -47,7 +48,7 @@
                   <input type="range" ng-model="sliderValue" ng-mousedown="onStart($event)"
                    ng-mouseup="onEnd($event)" ng-change="onSliderChange()"
                   min="{{bounds.min}}" max="{{bounds.max}}" step="{{bounds.step}}" class="dual-range-slider__input">
-                    <div class="dual-range-slider__left-thumb" ng-class="{drs_active: leftActive}"></div>
+                    <div ng-hide="hideHandleMin" class="dual-range-slider__left-thumb" ng-class="{drs_active: leftActive}"></div>
                     <div class="dual-range-slider__right-thumb" ng-class="{drs_active: rightActive}"></div>
                     <div class="dual-range-slider__highlight"></div>
                     <div class="dual-range-slider__track"></div>
@@ -182,7 +183,7 @@
           let l = Math.abs(val - scope.model.min);
           let u = Math.abs(val - scope.model.max);
 
-          if (l < u) {  // left is active
+          if (!scope.hideHandleMin && l < u ) {  // left is active
             angular.extend(scope.model, {
               min: val
             });
